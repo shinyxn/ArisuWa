@@ -5,13 +5,13 @@
   "main": "index.js",
   "type": "commonjs",
   "scripts": {
+    "start": "node index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@open-wa/wa-automate": "^4.66.3",
     "@whiskeysockets/baileys": "^6.4.1"
   }
 }
