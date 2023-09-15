@@ -1,4 +1,5 @@
 import { ipaddr } from "./commands/ipaddr.js";
+import utils from "./lib/utils.js";
 
 export default async function (sock, message) {
   const senderNumber = message.key.remoteJid;
@@ -10,14 +11,10 @@ export default async function (sock, message) {
     (videoMessage && videoMessage.caption);
 
   if (textMessage == "hola") {
-    await sock.sendMessage(
-      senderNumber,
-      { text: "Halo juga" },
-      { quoted: message }
-    );
+    utils.sendText('iayyayaya', senderNumber)
   }
 
   if (textMessage == "ip") {
-    ipaddr(sock, message, senderNumber)
+    ipaddr(senderNumber)
   }
 }

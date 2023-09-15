@@ -6,16 +6,16 @@ import {
 } from "@whiskeysockets/baileys";
 import handler from "./handler.js";
 
+const { state, saveCreds } = await useMultiFileAuthState("login");
+const { version, isLatest } = await fetchLatestBaileysVersion();
+
+export const sock = makeWASocket({
+  version,
+  printQRInTerminal: true,
+  auth: state,
+});
+
 async function connectToWhatsApp() {
-  const { state, saveCreds } = await useMultiFileAuthState("login");
-  const { version, isLatest } = await fetchLatestBaileysVersion();
-
-  const sock = makeWASocket({
-    version,
-    printQRInTerminal: true,
-    auth: state,
-  });
-
   sock.ev.on("connection.update", async (update) => {
     const { connection, lastDisconnect } = update;
     if (connection === "close") {
