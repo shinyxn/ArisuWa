@@ -4,6 +4,7 @@ import {
   useMultiFileAuthState,
   fetchLatestBaileysVersion,
 } from "@whiskeysockets/baileys";
+import handler from "./handler.js";
 
 async function connectToWhatsApp() {
   const { state, saveCreds } = await useMultiFileAuthState("login");
@@ -44,32 +45,26 @@ async function connectToWhatsApp() {
 
   sock.ev.on("messages.upsert", async (m) => {
     m.messages.forEach(async (message) => {
-      if (
-        !message.message ||
-        message.key.fromMe ||
-        (message.key && message.key.remoteJid == "status@broadcast")
-      )
-        return;
-      if (message.message.ephemeralMessage) {
-        message.message = message.message.ephemeralMessage.message;
-      }
+      // if (
+      //   !message.message ||
+      //   message.key.fromMe ||
+      //   (message.key && message.key.remoteJid == "status@broadcast")
+      // )
+      //   return;
+      // if (message.message.ephemeralMessage) {
+      //   message.message = message.message.ephemeralMessage.message;
+      // }
 
-      const senderNumber = message.key.remoteJid;
-      const textMessage =
-        message.message.conversation ||
-        (message.message.extendedTextMessage &&
-          message.message.extendedTextMessage.text) ||
-        (imageMessage && imageMessage.caption) ||
-        (videoMessage && videoMessage.caption);
+      await handler(sock, message);
 
-      if (textMessage == "halo") {
-        await sock.sendMessage(
-          senderNumber,
-          { text: "Halo juga" },
-          { quoted: message }
-        );
-      }
-      console.log(textMessage);
+      // if (textMessage == "halo") {
+      //   await sock.sendMessage(
+      //     senderNumber,
+      //     { text: "Halo juga" },
+      //     { quoted: message }
+      //   );
+      // }
+      // console.log(textMessage);
       // try {
       // 	await sock.sendPresenceUpdate('composing', message.key.remoteJid)
       // 	await messageHandler(sock, message);

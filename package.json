@@ -12,6 +12,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@whiskeysockets/baileys": "^6.4.1"
+    "@whiskeysockets/baileys": "^6.4.1",
+    "phin": "^3.7.0"
   }
 }
