@@ -15,7 +15,7 @@ export const sock = makeWASocket({
   auth: state,
 });
 
-async function connectToWhatsApp() {
+async function triBotInitialize() {
   sock.ev.on("connection.update", async (update) => {
     const { connection, lastDisconnect } = update;
     if (connection === "close") {
@@ -34,7 +34,7 @@ async function connectToWhatsApp() {
         shouldReconnect
       );
       if (shouldReconnect) {
-        connectToWhatsApp();
+        triBotInitialize();
       }
     } else if (connection === "open") {
       console.log("opened connection");
@@ -45,51 +45,26 @@ async function connectToWhatsApp() {
 
   sock.ev.on("messages.upsert", async (m) => {
     m.messages.forEach(async (message) => {
-      // if (
-      //   !message.message ||
-      //   message.key.fromMe ||
-      //   (message.key && message.key.remoteJid == "status@broadcast")
-      // )
-      //   return;
-      // if (message.message.ephemeralMessage) {
-      //   message.message = message.message.ephemeralMessage.message;
-      // }
+      if (
+        !message.message ||
+        message.key.fromMe ||
+        (message.key && message.key.remoteJid == "status@broadcast")
+      )
+        return;
+      if (message.message.ephemeralMessage) {
+        message.message = message.message.ephemeralMessage.message;
+      }
 
-      await handler(sock, message);
-
-      // if (textMessage == "halo") {
-      //   await sock.sendMessage(
-      //     senderNumber,
-      //     { text: "Halo juga" },
-      //     { quoted: message }
-      //   );
-      // }
-      // console.log(textMessage);
-      // try {
-      // 	await sock.sendPresenceUpdate('composing', message.key.remoteJid)
-      // 	await messageHandler(sock, message);
-      // } catch(e) {
-      // 	if (!global.yargs.dev) {
-      // 		console.log("[ERROR] " + e.message);
-      // 		sock.sendMessage(message.key.remoteJid, {"text":"Terjadi error! coba lagi nanti"}, { quoted: message });
-      // 	} else {
-      // 		console.log(e);
-      // 	}
-      // } finally {
-      // 	await sock.sendPresenceUpdate('available', message.key.remoteJid)
-      // }
+      try {
+        await sock.sendPresenceUpdate("composing", message.key.remoteJid);
+        await handler(sock, message);
+      } catch (e) {
+        console.log("[ERROR] " + e.message);
+      } finally {
+        await sock.sendPresenceUpdate("available", message.key.remoteJid);
+      }
     });
-
-    // console.log(m)
-
-    // if (m.messages[0].message.conversation == 'halo') {
-    //     await sock.sendMessage(m.messages[0].key.remoteJid, { text: 'Hello there!' }, { quoted: m.messages[0] });
-    // }
-    // console.log(JSON.stringify(m, undefined, 2))
-
-    // console.log('replying to', m.messages[0].key.remoteJid)
-    // await sock.sendMessage(m.messages[0].key.remoteJid, { text: 'Hello there!' })
   });
 }
-// run in main file
-connectToWhatsApp();
+
+triBotInitialize();
