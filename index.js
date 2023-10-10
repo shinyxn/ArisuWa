@@ -5,6 +5,7 @@ import {
   fetchLatestBaileysVersion,
 } from "@whiskeysockets/baileys";
 import handler from "./handler.js";
+import moment from "moment-timezone";
 
 async function connectToWhatsApp() {
   const { state, saveCreds } = await useMultiFileAuthState("login");
@@ -37,6 +38,21 @@ async function connectToWhatsApp() {
         connectToWhatsApp();
       }
     } else if (connection === "open") {
+      setInterval(function () {
+        var now = new Date();
+        var wib = moment.tz(now, "Asia/Jakarta");
+        var waktuDiWIB = wib.format("HH:mm");
+        var namaHariDiWIB = wib.format("dddd").toLowerCase();
+
+        console.log(waktuDiWIB + namaHariDiWIB);
+
+        if (namaHariDiWIB === "tuesday") {
+          /// kirim pesan setiap kondisi
+          console.log("halo");
+          var id = "6289649178812@s.whatsapp.net";
+          sock.sendMessage(id, { text: "oh hello there" });
+        }
+      }, 15000); // masih error karna setiap pesan masuk kondisi terus kepanggil dan ketika tidak ada pesan masuk kondisi tidak di periksa
       console.log("opened connection");
     }
   });
