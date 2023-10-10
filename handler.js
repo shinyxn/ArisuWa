@@ -1,4 +1,5 @@
 import { ipaddr } from "./commands/ipaddr.js";
+import WSF from "wa-sticker-formatter";
 
 export default async function (sock, message) {
   const senderNumber = message.key.remoteJid;
