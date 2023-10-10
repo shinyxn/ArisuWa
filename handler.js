@@ -36,7 +36,8 @@ export default async function (sock, message) {
     }
   }
   if (textMessage == "hola") {
-    await reply("haloo");
+    var id = "6289649178812@s.whatsapp.net";
+    await sock.sendMessage(id, { text: "oh hello there" });
   }
 
   if (textMessage == "ip") {
