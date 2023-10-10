@@ -7,7 +7,7 @@ import {
 import handler from "./handler.js";
 import moment from "moment-timezone";
 
-async function connectToWhatsApp() {
+export async function connectToWhatsApp() {
   const { state, saveCreds } = await useMultiFileAuthState("login");
   const { version, isLatest } = await fetchLatestBaileysVersion();
 
@@ -40,8 +40,8 @@ async function connectToWhatsApp() {
     } else if (connection === "open") {
       var now = new Date();
       var wib = moment.tz(now, "Asia/Jakarta");
-      var namaHariDiWIB = wib.format("dddd").toLowerCase();
-      if (namaHariDiWIB === "monday") {
+      var waktuDiWIB = wib.format("HH:mm");
+      if (waktuDiWIB === "monday") {
         setInterval(function () {
           var now = new Date();
           var wib = moment.tz(now, "Asia/Jakarta");
@@ -72,7 +72,7 @@ async function connectToWhatsApp() {
             });
           }
         }, 15000);
-      } else if (namaHariDiWIB === "tuesday") {
+      } else if (waktuDiWIB === "tuesday") {
         setInterval(function () {
           var now = new Date();
           var wib = moment.tz(now, "Asia/Jakarta");
@@ -80,6 +80,7 @@ async function connectToWhatsApp() {
           var namaHariDiWIB = wib.format("dddd").toLowerCase();
           if (waktuDiWIB === "07:40") {
             /// kirim pesan setiap kondisi
+            console.log("halo");
             var id = "6289649178812@s.whatsapp.net";
             sock.sendMessage(id, {
               text: "jadwal praktikum bu norma arkom jam 8 pagi !!!!",
@@ -106,7 +107,7 @@ async function connectToWhatsApp() {
             });
           }
         }, 15000);
-      } else if (namaHariDiWIB === "wednesday") {
+      } else if (waktuDiWIB === "wednesday") {
         setInterval(function () {
           var now = new Date();
           var wib = moment.tz(now, "Asia/Jakarta");
@@ -124,78 +125,20 @@ async function connectToWhatsApp() {
             sock.sendMessage(id, {
               text: "gass keruang jj-309 praktikum di mulai",
             });
-          } else if (waktuDiWIB === "11:20") {
+          } else if (waktuDiWIB === "13:25") {
             var id = "6289649178812@s.whatsapp.net";
             sock.sendMessage(id, {
-              text: "bu afifah coyy",
-            });
-          } else if (waktuDiWIB === "12:00") {
-            var id = "6289649178812@s.whatsapp.net";
-            sock.sendMessage(id, {
-              text: "praktikum bu f=afifah di ruang A 303",
-            });
-          }
-        }, 15000);
-      } else if (namaHariDiWIB === "thursday") {
-        setInterval(function () {
-          var now = new Date();
-          var wib = moment.tz(now, "Asia/Jakarta");
-          var waktuDiWIB = wib.format("HH:mm");
-          var namaHariDiWIB = wib.format("dddd").toLowerCase();
-
-          if (waktuDiWIB === "07:40") {
-            /// kirim pesan setiap kondisi
-            var id = "6289649178812@s.whatsapp.net";
-            sock.sendMessage(id, {
-              text: "AGAMA YANG ISLAM DI TEATER GEDUNG D3 !!!!",
-            });
-          } else if (waktuDiWIB === "07:59") {
-            var id = "6289649178812@s.whatsapp.net";
-            sock.sendMessage(id, {
-              text: "AGAMA DI TEADER D3 !!!!",
-            });
-          } else if (waktuDiWIB === "13:20") {
-            var id = "6289649178812@s.whatsapp.net";
-            sock.sendMessage(id, {
-              text: "PAK ARIES JANGAN TELAT JAM 13.50!!!",
+              text: "pak aries 13.50 coyy siap siap 25 menit lagi",
             });
           } else if (waktuDiWIB === "13:49") {
             var id = "6289649178812@s.whatsapp.net";
             sock.sendMessage(id, {
-              text: "PAK ARIES di ruang A 303",
+              text: "gass keruang 3 105 praktikum pak aries!!!",
             });
           }
         }, 15000);
-      } else if (namaHariDiWIB === "friday") {
-        setInterval(function () {
-          var now = new Date();
-          var wib = moment.tz(now, "Asia/Jakarta");
-          var waktuDiWIB = wib.format("HH:mm");
-          var namaHariDiWIB = wib.format("dddd").toLowerCase();
-
-          if (waktuDiWIB === "07:40") {
-            /// kirim pesan setiap kondisi
-            var id = "6289649178812@s.whatsapp.net";
-            sock.sendMessage(id, {
-              text: "workshop bu norma jam 8 !!!!",
-            });
-          } else if (waktuDiWIB === "07:59") {
-            var id = "6289649178812@s.whatsapp.net";
-            sock.sendMessage(id, {
-              text: "workshop bu norma !!!",
-            });
-          } else if (waktuDiWIB === "12:40") {
-            var id = "6289649178812@s.whatsapp.net";
-            sock.sendMessage(id, {
-              text: "persiapkan otakmu untuk MTK!",
-            });
-          } else if (waktuDiWIB === "12:00") {
-            var id = "6289649178812@s.whatsapp.net";
-            sock.sendMessage(id, {
-              text: "BISMILLAH MTK MASUK DI OTAK",
-            });
-          }
-        }, 15000);
+      } else if (waktuDiWIB === "thursday") {
+      } else if (waktuDiWIB === "friday") {
       }
       // masih error karna setiap pesan masuk kondisi terus kepanggil dan ketika tidak ada pesan masuk kondisi tidak di periksa
       console.log("opened connection");
@@ -215,7 +158,6 @@ async function connectToWhatsApp() {
       // if (message.message.ephemeralMessage) {
       //   message.message = message.message.ephemeralMessage.message;
       // }
-
       await handler(sock, message);
 
       // if (textMessage == "halo") {
@@ -242,15 +184,11 @@ async function connectToWhatsApp() {
     });
 
     // console.log(m)
-
     // if (m.messages[0].message.conversation == 'halo') {
     //     await sock.sendMessage(m.messages[0].key.remoteJid, { text: 'Hello there!' }, { quoted: m.messages[0] });
     // }
     // console.log(JSON.stringify(m, undefined, 2))
-
     // console.log('replying to', m.messages[0].key.remoteJid)
     // await sock.sendMessage(m.messages[0].key.remoteJid, { text: 'Hello there!' })
   });
 }
-// run in main file
-connectToWhatsApp();
