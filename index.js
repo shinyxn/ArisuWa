@@ -46,7 +46,7 @@ async function connectToWhatsApp() {
 
         console.log(waktuDiWIB + namaHariDiWIB);
 
-        if (namaHariDiWIB === "tuesday") {
+        if (namaHariDiWIB === "tuesday" && waktuDiWIB === "12:06") {
           /// kirim pesan setiap kondisi
           console.log("halo");
           var id = "6289649178812@s.whatsapp.net";
