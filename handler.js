@@ -3,6 +3,7 @@ import getDikti from "./commands/dikti.js";
 import { ipaddr } from "./commands/ipaddr.js";
 import { tiktokdl } from "./commands/tiktok.js";
 import fs from "fs/promises";
+import { makeid } from "./lib/makeid.js";
 
 import { Sticker, createSticker, StickerTypes } from "wa-sticker-formatter";
 
@@ -87,12 +88,12 @@ export default async function (sock, m) {
       case "p":
         console.log(m);
         break;
-      case "s": {
-        if (m.mtype === "imageMessage") {
+      case "s":
+        {
           // download the message
           const media = await downloadMediaMessage(
             m,
-            "buffer",
+            "buffer" || "stream",
             {},
             {
               // logger,
@@ -103,21 +104,16 @@ export default async function (sock, m) {
           );
 
           let jancok = new Sticker(media, {
-            pack: "packName", // The pack name
-            author: "authorName", // The author name
+            pack: "TRIBOT", // The pack name
+            author: "SYAUQI MEME DEPOK " + makeid(10), // The author name
             type: StickerTypes.FULL, // The sticker type
             categories: ["🤩", "🎉"], // The sticker category
-            id: "12345", // The sticker id
+            id: makeid(5), // The sticker id
             quality: 50, // The quality of the output file
             background: "#FFFFFF00", // The sticker background color (only for full stickers)
           });
-          let stok = "dfjshfodfj.webp";
 
           const buffer = await jancok.toBuffer();
-
-          await fs.writeFile("asu.webp", buffer);
-          // let nono = await jancok.toFile(stok);
-          //let nah = fs.readFileSync(nono);
           await sock.sendMessage(senderNumber, await jancok.toMessage(), {
             quoted: m,
           });
@@ -130,7 +126,7 @@ export default async function (sock, m) {
           // await fs.unlinkSync(media);
           console.log(senderNumber);
         }
-      }
+        break;
     }
   }
 
