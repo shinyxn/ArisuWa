@@ -65,7 +65,6 @@ export default async function (sock, m) {
   };
 
   let prefix = /^[\\/!#.]/gi.test(body) ? body.match(/^[\\/!#.]/gi) : "/";
-
   const firstmess = body.startsWith(prefix);
   let pesan = body.replace(prefix, "").trim().split(/ +/).shift().toLowerCase();
   m.args = body.trim().split(/ +/).slice(1);
@@ -113,18 +112,51 @@ export default async function (sock, m) {
             background: "#FFFFFF00", // The sticker background color (only for full stickers)
           });
 
-          const buffer = await jancok.toBuffer();
-          await sock.sendMessage(senderNumber, await jancok.toMessage(), {
+          const sticker = await jancok.toMessage();
+          await sock.sendMessage(senderNumber, sticker, {
             quoted: m,
           });
-          // await sock.sendMessage(
-          //   senderNumber,
-          //   { sticker: fs.readFile("sekarep.jpg") },
-          //   { quoted: m }
-          // );
-          //  await fs.unlinkSync(stok);
-          // await fs.unlinkSync(media);
+
           console.log(senderNumber);
+        }
+        break;
+      case "sgif":
+      case "sgift":
+        {
+          let media =
+            `https://vihangayt.me/maker/text2gif?q=` + m.args.join(" ");
+          let jancok = new Sticker(media, {
+            pack: "TRIBOT", // The pack name
+            author: "SYAUQI MEME DEPOK " + makeid(10), // The author name
+            type: StickerTypes.FULL, // The sticker type
+            categories: ["🤩", "🎉"], // The sticker category
+            id: makeid(5), // The sticker id
+            quality: 50, // The quality of the output file
+            background: "#FFFFFF00", // The sticker background color (only for full stickers)
+          });
+          const sticker = await jancok.toMessage();
+          await sock.sendMessage(senderNumber, sticker, {
+            quoted: m,
+          });
+        }
+        break;
+      case "stext":
+        {
+          let media =
+            `https://vihangayt.me/maker/text2img?q=` + m.args.join(" ");
+          let jancok = new Sticker(media, {
+            pack: "TRIBOT", // The pack name
+            author: "SYAUQI MEME DEPOK " + makeid(10), // The author name
+            type: StickerTypes.FULL, // The sticker type
+            categories: ["🤩", "🎉"], // The sticker category
+            id: makeid(5), // The sticker id
+            quality: 50, // The quality of the output file
+            background: "#FFFFFF00", // The sticker background color (only for full stickers)
+          });
+          const sticker = await jancok.toMessage();
+          await sock.sendMessage(senderNumber, sticker, {
+            quoted: m,
+          });
         }
         break;
     }
