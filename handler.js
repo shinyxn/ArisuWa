@@ -104,7 +104,7 @@ export default async function (sock, m) {
 
           let jancok = new Sticker(media, {
             pack: "TRIBOT", // The pack name
-            author: "SYAUQI MEME DEPOK " + makeid(10), // The author name
+            author: "SYAUQI MEME DEPOK " + makeid(5), // The author name
             type: StickerTypes.FULL, // The sticker type
             categories: ["🤩", "🎉"], // The sticker category
             id: makeid(5), // The sticker id
