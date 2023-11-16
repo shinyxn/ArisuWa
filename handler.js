@@ -2,8 +2,9 @@ import { downloadMediaMessage, getContentType } from "@whiskeysockets/baileys";
 import getDikti from "./commands/dikti.js";
 import { ipaddr } from "./commands/ipaddr.js";
 import { tiktokdl } from "./commands/tiktok.js";
-import fs from "fs/promises";
 import { makeid } from "./lib/makeid.js";
+import fs from "fs";
+//import { downloadMedia } from "./lib/download.js";
 
 import { Sticker, createSticker, StickerTypes } from "wa-sticker-formatter";
 
@@ -157,6 +158,30 @@ export default async function (sock, m) {
           await sock.sendMessage(senderNumber, sticker, {
             quoted: m,
           });
+        }
+        break;
+      case "upload":
+      case "tourl":
+      case "tolink":
+        {
+          reply("Prosess");
+          const medias = await downloadMediaMessage(
+            m,
+            "buffer" || "stream",
+            {},
+            {
+              // logger,
+              // // pass this so that baileys can request a reupload of media
+              // // that has been deleted
+              // reuploadRequest: sock.updateMediaMessage
+            }
+          );
+          let media = await fs.writeFileSync("test", medias);
+          let { TelegraPh } = await import("./lib/uploader.js");
+          let anu = await TelegraPh("test");
+          console.log(anu);
+          reply(anu);
+          fs.unlinkSync("test");
         }
         break;
     }
