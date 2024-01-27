@@ -148,8 +148,6 @@ balas sesuai room id jika ingin menerima`,
               });
             });
           });
-          menfess == resolve;
-          console.log(menfess);
           break;
         case 'oii':
           {
