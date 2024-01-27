@@ -1,12 +1,16 @@
-import { downloadMediaMessage, getContentType } from "@whiskeysockets/baileys";
-import getDikti from "./commands/dikti.js";
-import { ipaddr } from "./commands/ipaddr.js";
-import { tiktokdl } from "./commands/tiktok.js";
-import { makeid } from "./lib/makeid.js";
-import fs from "fs";
+import {downloadMediaMessage, getContentType} from '@whiskeysockets/baileys';
+import getDikti from './commands/dikti.js';
+import {ipaddr} from './commands/ipaddr.js';
+import {tiktokdl} from './commands/Tiktokv1.js';
+import {TiktokV2} from './commands/Tiktokv2.js';
+import {makeid} from './lib/makeid.js';
+import fs from 'fs';
+// import menfess from './lib/Menfess.js';
+
 //import { downloadMedia } from "./lib/download.js";
 
-import { Sticker, createSticker, StickerTypes } from "wa-sticker-formatter";
+import {Sticker, createSticker, StickerTypes} from 'wa-sticker-formatter';
+import {resolve} from 'path';
 
 export default async function (sock, m) {
   const senderNumber = m.key.remoteJid;
@@ -27,172 +31,258 @@ export default async function (sock, m) {
 
     try {
       var body =
-        m.mtype === "conversation"
+        m.mtype === 'conversation'
           ? m.message.conversation
-          : m.mtype == "imageMessage"
+          : m.mtype == 'imageMessage'
           ? m.message.imageMessage.caption
-          : m.mtype == "videoMessage"
-          ? m.message.videoMessage.caption
-          : m.mtype == "extendedTextMessage"
-          ? m.message.extendedTextMessage.text
-          : m.mtype == "ephemeralMessage"
+          : m.mtype == 'videoMessage'
+          ? m.message.videoMessage.caption ||
+            m.message.extendedTextMessage.contextInfo.quotedMessage.videoMessage
+          : m.mtype == 'extendedTextMessage'
+          ? m.message.extendedTextMessage.text ||
+            m.message.extendedTextMessage.contextInfo.quotedMessage.conversation
+          : m.mtype == 'ephemeralMessage'
           ? m.message.ephemeralMessage.message.extendedTextMessage.text
-          : m.mtype == "buttonsResponseMessage"
+          : m.mtype == 'buttonsResponseMessage'
           ? m.message.buttonsResponseMessage.selectedButtonId
-          : m.mtype == "listResponseMessage"
+          : m.mtype == 'listResponseMessage'
           ? m.message.listResponseMessage.singleSelectReply.selectedRowId
-          : m.mtype == "templateButtonReplyMessage"
+          : m.mtype == 'templateButtonReplyMessage'
           ? m.message.templateButtonReplyMessage.selectedId
-          : m.mtype === "messageContextInfo"
+          : m.mtype === 'messageContextInfo'
           ? m.message.buttonsResponseMessage?.selectedButtonId ||
             m.message.listResponseMessage?.singleSelectReply.selectedRowId ||
             m.text
-          : "";
+          : '';
     } catch (e) {
       console.log(e);
     }
   }
 
   const reply = async (text) => {
-    await sock.sendMessage(senderNumber, { text }, { quoted: m });
+    await sock.sendMessage(senderNumber, {text}, {quoted: m});
   };
 
   const sendVideo = async (url) => {
     await sock.sendMessage(
       senderNumber,
-      { caption: "Nyo videone", video: { url: url } },
-      { quoted: m }
+      {caption: 'Nyo videone', video: {url: url}},
+      {quoted: m},
     );
   };
+  try {
+    let prefix = /^[\\/!#.]/gi.test(body) ? body.match(/^[\\/!#.]/gi) : '/';
+    const firstmess = body.startsWith(prefix);
+    let pesan = body
+      .replace(prefix, '')
+      .trim()
+      .split(/ +/)
+      .shift()
+      .toLowerCase();
+    m.args = body.trim().split(/ +/).slice(1);
 
-  let prefix = /^[\\/!#.]/gi.test(body) ? body.match(/^[\\/!#.]/gi) : "/";
-  const firstmess = body.startsWith(prefix);
-  let pesan = body.replace(prefix, "").trim().split(/ +/).shift().toLowerCase();
-  m.args = body.trim().split(/ +/).slice(1);
+    if (firstmess) {
+      switch (pesan) {
+        case 'menfess':
+          if (m.args.length < 2) {
+            reply('Usage: menfess <number> <message>');
+            break;
+          }
+          let menfess = true;
+          const senderMenfess = senderNumber;
+          const receiverNumber = m.args[0] + '@s.whatsapp.net';
+          // const message = m.args.slice(1).join(' ');
+          let roomId = makeid(5);
 
-  if (firstmess) {
-    switch (pesan) {
-      case "oii":
-        {
-          reply("oii");
-        }
-        break;
-      case "pagi":
-        reply("pagi jugaa");
-        break;
-      case "tiktok":
-        sendVideo(await tiktokdl(m.args[0]));
-        break;
-      case "dikti":
-        reply(await getDikti(m.args.join(" ")));
-      case "p":
-        console.log(m);
-        break;
-      case "s":
-        {
-          // download the message
-          const media = await downloadMediaMessage(
-            m,
-            "buffer" || "stream",
-            {},
-            {
-              // logger,
-              // // pass this so that baileys can request a reupload of media
-              // // that has been deleted
-              // reuploadRequest: sock.updateMediaMessage
-            }
-          );
+          await sock.sendMessage(receiverNumber, {
+            text: `
+ada seseorang yang ingin memberikan menfess keanda
+dengan room: ${roomId}
+balas sesuai room id jika ingin menerima`,
+          });
+          if (senderNumber == receiverNumber) {
+            // console.log('case2' + senderNumber);
+          }
 
-          let jancok = new Sticker(media, {
-            pack: "TRIBOT", // The pack name
-            author: "SYAUQI MEME DEPOK " + makeid(5), // The author name
-            type: StickerTypes.FULL, // The sticker type
-            categories: ["🤩", "🎉"], // The sticker category
-            id: makeid(5), // The sticker id
-            quality: 50, // The quality of the output file
-            background: "#FFFFFF00", // The sticker background color (only for full stickers)
+          await new Promise((resolve) => {
+            sock.ev.on('messages.upsert', async (m) => {
+              m.messages.forEach(async (message) => {
+                const text =
+                  message.message.extendedTextMessage.text ||
+                  message.message.extendedTextMessage.contextInfo.quotedMessage
+                    .conversation;
+                // console.log(message);
+                const me = message.key.fromMe;
+                if (menfess === true && me == false) {
+                  let q = message.args.join(' ');
+                  console.log(q);
+                  if (message.key.remoteJid == receiverNumber) {
+                    await sock.sendMessage(senderMenfess, {
+                      text: `Menfess : ${text}`,
+                    });
+                    // console.log('penerima ngirim', text);
+                  } else if (message.key.remoteJid == senderMenfess) {
+                    await sock.sendMessage(receiverNumber, {
+                      text: `Menfess : ${text}`,
+                    }); // console.log('pengirim ngirim', text);
+                  }
+                  message.key.remoteJid == receiverNumber && q.includes('stop')
+                    ? (menfess = false)
+                    : message.key.remoteJid == senderMenfess &&
+                      q.includes('stop')
+                    ? (menfess = false)
+                    : '';
+                  // else if (
+                  //   message.key.remoteJid == receiverNumber &&
+                  //   message.key.remoteJid == senderMenfess &&
+                  //   q.includes('stop')
+                  // ) {
+                  //   menfess = false;
+                  //   console.log('menfess berhenti');
+                  // }
+                  // if (q.includes('stop')) {
+                  //   menfess = false;
+                  //   console.log('menfess berhentiiiii');
+                  // }
+                }
+              });
+            });
           });
+          menfess == resolve;
+          console.log(menfess);
+          break;
+        case 'oii':
+          {
+            reply('oii');
+          }
+          break;
+        case 'pagi':
+          reply('pagi jugaa');
+          break;
+        case 'tt':
+        case 'tiktok':
+          const tiktok2 = (url) => {
+            try {
+              TiktokV2(url);
+            } catch (err) {}
+          };
+          try {
+            let tiktok = await tiktokdl(m.args[0]);
+            sendVideo(tiktok);
+          } catch (err) {
+            tiktok2(m.args[0]);
+          }
 
-          const sticker = await jancok.toMessage();
-          await sock.sendMessage(senderNumber, sticker, {
-            quoted: m,
-          });
+          break;
+        case 'dikti':
+          reply(await getDikti(m.args.join(' ')));
+        case 'p':
+          console.log(m);
+          break;
+        case 's':
+          {
+            // download the message
+            const media = await downloadMediaMessage(
+              m,
+              'buffer' || 'stream',
+              {},
+              {
+                // logger,
+                // // pass this so that baileys can request a reupload of media
+                // // that has been deleted
+                // reuploadRequest: sock.updateMediaMessage
+              },
+            );
 
-          console.log(senderNumber);
-        }
-        break;
-      case "sgif":
-      case "sgift":
-        {
-          let media =
-            `https://vihangayt.me/maker/text2gif?q=` + m.args.join(" ");
-          let jancok = new Sticker(media, {
-            pack: "TRIBOT", // The pack name
-            author: "SYAUQI MEME DEPOK " + makeid(10), // The author name
-            type: StickerTypes.FULL, // The sticker type
-            categories: ["🤩", "🎉"], // The sticker category
-            id: makeid(5), // The sticker id
-            quality: 50, // The quality of the output file
-            background: "#FFFFFF00", // The sticker background color (only for full stickers)
-          });
-          const sticker = await jancok.toMessage();
-          await sock.sendMessage(senderNumber, sticker, {
-            quoted: m,
-          });
-        }
-        break;
-      case "stext":
-        {
-          let media =
-            `https://vihangayt.me/maker/text2img?q=` + m.args.join(" ");
-          let jancok = new Sticker(media, {
-            pack: "TRIBOT", // The pack name
-            author: "SYAUQI MEME DEPOK " + makeid(10), // The author name
-            type: StickerTypes.FULL, // The sticker type
-            categories: ["🤩", "🎉"], // The sticker category
-            id: makeid(5), // The sticker id
-            quality: 50, // The quality of the output file
-            background: "#FFFFFF00", // The sticker background color (only for full stickers)
-          });
-          const sticker = await jancok.toMessage();
-          await sock.sendMessage(senderNumber, sticker, {
-            quoted: m,
-          });
-        }
-        break;
-      case "upload":
-      case "tourl":
-      case "tolink":
-        {
-          reply("Prosess");
-          const medias = await downloadMediaMessage(
-            m,
-            "buffer" || "stream",
-            {},
-            {
-              // logger,
-              // // pass this so that baileys can request a reupload of media
-              // // that has been deleted
-              // reuploadRequest: sock.updateMediaMessage
-            }
-          );
-          let media = await fs.writeFileSync("test", medias);
-          let { TelegraPh } = await import("./lib/uploader.js");
-          let anu = await TelegraPh("test");
-          console.log(anu);
-          reply(anu);
-          fs.unlinkSync("test");
-        }
-        break;
+            let jancok = new Sticker(media, {
+              pack: 'TRIBOT', // The pack name
+              author: 'SYAUQI MEME DEPOK ' + makeid(5), // The author name
+              type: StickerTypes.FULL, // The sticker type
+              categories: ['🤩', '🎉'], // The sticker category
+              id: makeid(5), // The sticker id
+              quality: 50, // The quality of the output file
+              background: '#FFFFFF00', // The sticker background color (only for full stickers)
+            });
+
+            const sticker = await jancok.toMessage();
+            await sock.sendMessage(senderNumber, sticker, {
+              quoted: m,
+            });
+
+            console.log(senderNumber);
+          }
+          break;
+        case 'sgif':
+        case 'sgift':
+          {
+            let media =
+              `https://vihangayt.me/maker/text2gif?q=` + m.args.join(' ');
+            let jancok = new Sticker(media, {
+              pack: 'TRIBOT', // The pack name
+              author: 'SYAUQI MEME DEPOK ' + makeid(10), // The author name
+              type: StickerTypes.FULL, // The sticker type
+              categories: ['🤩', '🎉'], // The sticker category
+              id: makeid(5), // The sticker id
+              quality: 50, // The quality of the output file
+              background: '#FFFFFF00', // The sticker background color (only for full stickers)
+            });
+            const sticker = await jancok.toMessage();
+            await sock.sendMessage(senderNumber, sticker, {
+              quoted: m,
+            });
+          }
+          break;
+        case 'stext':
+          {
+            let media =
+              `https://vihangayt.me/maker/text2img?q=` + m.args.join(' ');
+            let jancok = new Sticker(media, {
+              pack: 'TRIBOT', // The pack name
+              author: 'SYAUQI MEME DEPOK ' + makeid(10), // The author name
+              type: StickerTypes.FULL, // The sticker type
+              categories: ['🤩', '🎉'], // The sticker category
+              id: makeid(5), // The sticker id
+              quality: 50, // The quality of the output file
+              background: '#FFFFFF00', // The sticker background color (only for full stickers)
+            });
+            const sticker = await jancok.toMessage();
+            await sock.sendMessage(senderNumber, sticker, {
+              quoted: m,
+            });
+          }
+          break;
+        case 'upload':
+        case 'tourl':
+        case 'tolink':
+          {
+            reply('Prosess');
+            const medias = await downloadMediaMessage(
+              m,
+              'buffer' || 'stream',
+              {},
+              {
+                // logger,
+                // // pass this so that baileys can request a reupload of media
+                // // that has been deleted
+                // reuploadRequest: sock.updateMediaMessage
+              },
+            );
+            let media = await fs.writeFileSync('test', medias);
+            let {TelegraPh} = await import('./lib/uploader.js');
+            let anu = await TelegraPh('test');
+            console.log(anu);
+            reply(anu);
+            fs.unlinkSync('test');
+          }
+          break;
+      }
     }
-  }
-
-  if (body == "hola") {
-    var id = "6289649178812@s.whatsapp.net";
-    await sock.sendMessage(id, { text: "oh hello there" });
-  }
-
-  if (body == "ip") {
-    ipaddr(sock, m, senderNumber);
+  } catch (err) {
+    console.log(err);
   }
 }
+
+//   if (body == 'hola') {
+//     var id = '6289649178812@s.whatsapp.net';
+//     await sock.sendMessage(id, {text: 'oh hello there'});
+//   }
