@@ -87,7 +87,11 @@ export default async function (sock, m) {
         case 'menfess':
           if (m.args.length < 1) {
             reply('Usage: menfess 62xxx(number)');
-            break;
+            return;
+          }
+          if (!m.args[0].includes('62')) {
+            reply('use 628xxx');
+            return;
           }
           let menfess = true;
           const senderMenfess = senderNumber;
