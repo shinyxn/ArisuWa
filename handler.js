@@ -11,6 +11,7 @@ import fs from 'fs';
 
 import {Sticker, createSticker, StickerTypes} from 'wa-sticker-formatter';
 import {resolve} from 'path';
+import {promises} from 'dns';
 
 export default async function (sock, m) {
   const senderNumber = m.key.remoteJid;
@@ -84,8 +85,8 @@ export default async function (sock, m) {
     if (firstmess) {
       switch (pesan) {
         case 'menfess':
-          if (m.args.length < 2) {
-            reply('Usage: menfess <number> <message>');
+          if (m.args.length < 1) {
+            reply('Usage: menfess 62xxx(number)');
             break;
           }
           let menfess = true;
@@ -96,59 +97,57 @@ export default async function (sock, m) {
 
           await sock.sendMessage(receiverNumber, {
             text: `
-ada seseorang yang ingin memberikan menfess keanda
-dengan room: ${roomId}
-balas sesuai room id jika ingin menerima`,
+sesorang ada yang ingin berinteraksi dengan anda menggunakan bot menfess. ketik apa saja untuk mengirimkan pesan. jika anda ingin berhenti ketik "menfess stop (room id anda)" 
+id room kamu: ${roomId}`,
+          });
+          await sock.sendMessage(senderMenfess, {
+            text: `
+room menfess telah terbuat. semua pesan anda kan dikirimkan ke penerima seluruhnya. ketik apa saja untuk mengirimkan ke penerima. jika ingin berhenti maka ketik menfess stop roomid
+id room kamu: ${roomId}`,
           });
           if (senderNumber == receiverNumber) {
             // console.log('case2' + senderNumber);
           }
 
-          await new Promise((resolve) => {
+          const endRoom = await new Promise(async (resolve) => {
             sock.ev.on('messages.upsert', async (m) => {
               m.messages.forEach(async (message) => {
                 const text =
                   message.message.extendedTextMessage.text ||
                   message.message.extendedTextMessage.contextInfo.quotedMessage
                     .conversation;
-                // console.log(message);
+
                 const me = message.key.fromMe;
-                if (menfess === true && me == false) {
+                if (menfess === true && me === false) {
                   let q = message.args.join(' ');
-                  console.log(q);
+                  // console.log(q);
+
                   if (message.key.remoteJid == receiverNumber) {
                     await sock.sendMessage(senderMenfess, {
                       text: `Menfess : ${text}`,
                     });
-                    // console.log('penerima ngirim', text);
                   } else if (message.key.remoteJid == senderMenfess) {
                     await sock.sendMessage(receiverNumber, {
                       text: `Menfess : ${text}`,
-                    }); // console.log('pengirim ngirim', text);
+                    });
                   }
-                  message.key.remoteJid == receiverNumber && q.includes('stop')
-                    ? (menfess = false)
+
+                  message.key.remoteJid == receiverNumber &&
+                  q.includes(`stop ${roomId}`)
+                    ? ((menfess = false), resolve('chat room telah berakhir'))
                     : message.key.remoteJid == senderMenfess &&
-                      q.includes('stop')
-                    ? (menfess = false)
+                      q.includes(`stop ${roomId}`)
+                    ? ((menfess = false), resolve('chat room telah berakhir'))
                     : '';
-                  // else if (
-                  //   message.key.remoteJid == receiverNumber &&
-                  //   message.key.remoteJid == senderMenfess &&
-                  //   q.includes('stop')
-                  // ) {
-                  //   menfess = false;
-                  //   console.log('menfess berhenti');
-                  // }
-                  // if (q.includes('stop')) {
-                  //   menfess = false;
-                  //   console.log('menfess berhentiiiii');
-                  // }
                 }
               });
             });
           });
+          await sock.sendMessage(senderMenfess, {text: endRoom});
+          await sock.sendMessage(receiverNumber, {text: endRoom});
+
           break;
+
         case 'oii':
           {
             reply('oii');
