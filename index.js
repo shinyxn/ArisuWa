@@ -6,11 +6,11 @@ import {
 } from '@whiskeysockets/baileys';
 import handler from './handler.js';
 import moment from 'moment-timezone';
-
+import {run} from './lib/mongoDB.js';
 async function connectToWhatsApp() {
   const {state, saveCreds} = await useMultiFileAuthState('login');
   const {version, isLatest} = await fetchLatestBaileysVersion();
-
+  await run();
   const sock = makeWASocket({
     version,
     printQRInTerminal: true,

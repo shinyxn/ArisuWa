@@ -7,6 +7,7 @@ import {makeid} from './lib/makeid.js';
 import fs from 'fs';
 // import menfess from './lib/Menfess.js';
 
+import {insertData} from './lib/mongoDB.js';
 //import { downloadMedia } from "./lib/download.js";
 
 import {Sticker, createSticker, StickerTypes} from 'wa-sticker-formatter';
@@ -15,7 +16,13 @@ import {promises} from 'dns';
 
 export default async function (sock, m) {
   const senderNumber = m.key.remoteJid;
+  console.log(m);
 
+  const data = {
+    number: m.key.remoteJid,
+    nama: m.pushName,
+  };
+  await insertData(data);
   // const body =
   //   message.message.conversation ||
   //   (message.message.extendedTextMessage &&
