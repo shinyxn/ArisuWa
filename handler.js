@@ -124,12 +124,12 @@ id room kamu: ${roomId}`,
             sock.ev.on("messages.upsert", async (m) => {
               m.messages.forEach(async (message) => {
                 if (
-                  message.message?.extendedTextMessage?.text ||
+                  message.message?.extendedTextMessage?.text || message.message?.conversation ||
                   message.message?.extendedTextMessage?.contextInfo?.quotedMessage
                     ?.conversation
                 ) {
                   const text =
-                    message.message.extendedTextMessage.text ||
+                    message.message.extendedTextMessage.text || message.message?.conversation ||
                     message.message.extendedTextMessage.contextInfo
                       .quotedMessage.conversation;
 
