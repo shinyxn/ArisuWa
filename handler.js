@@ -130,8 +130,8 @@ id room kamu: ${roomId}`,
 
                 const me = message.key.fromMe;
                 if (menfess === true && me === false) {
-                  let q = message.args.join(' ');
-                  // console.log(q);
+                  let q = message.message.extendedTextMessage.text;
+                  console.log(q);
 
                   if (message.key.remoteJid == receiverNumber) {
                     await sock.sendMessage(senderMenfess, {
