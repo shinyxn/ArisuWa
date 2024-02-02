@@ -129,9 +129,9 @@ id room kamu: ${roomId}`,
                     ?.conversation
                 ) {
                   const text =
-                    message.message.extendedTextMessage.text || message.message?.conversation ||
-                    message.message.extendedTextMessage.contextInfo
-                      .quotedMessage.conversation;
+                    message.message?.extendedTextMessage?.text || message.message?.conversation ||
+                    message.message?.extendedTextMessage?.contextInfo?
+                      .quotedMessage?.conversation;
 
                   const me = message.key.fromMe;
                   if (menfess === true && me === false) {
